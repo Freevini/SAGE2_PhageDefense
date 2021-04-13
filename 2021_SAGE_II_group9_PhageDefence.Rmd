@@ -19,6 +19,13 @@ All of this is formatted by a soft latex style.
 Interestingly, you can combined not only r code but also bash, python or whatever programming language you prefer. 
 To find out more see [here](https://rmarkdown.rstudio.com/) or the [cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).
 
+## Introduction git/github
+
+Git is a version control tool. You can think of it as if you are continuous backuping at regular intervals and you can return to certain stages of a coding project if needed. Github is the online platform that you can use to share and publish the code. 
+You can sign up for [free](https://github.com/) and download and create your own content. 
+I will save, update and distribute my code and presentations in the [my SAGE2 repository](https://github.com/Freevini/SAGE2_PhageDefense).
+Let's try to organise the project with it. 
+
 ## Let's do biology
 
 Technical aspects aside let's look at the biology. 
@@ -32,9 +39,7 @@ A useful function to scan annotations if you remember is grep.
 With grep you can scan your annotation .gff files as follows:
 
 ```{bash echo=TRUE}
-
 grep "modifi" -i /users/vsomervi/scratch/common_files/SAGE_II/Genomes/Lapis_ESL0263/*gff
-
 ```
 
 If we find a gene in our annotations this is usually a good sign that it is present (true positives). 
