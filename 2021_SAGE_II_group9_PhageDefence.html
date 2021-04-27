@@ -317,7 +317,7 @@ done</code></pre>
 </div>
 <div id="hiden-markov-models-hmms" class="section level1">
 <h1>Hiden Markov Models (HMMs)</h1>
-<p>Some genes are very specific for a species or have not been previously annotated, therefore we need to create specific Hiden markov model (hmm) profiles of the genes of interest.</p>
+<p>Some genes are very specific for a species or have not been previously annotated, therefore we need to create specific Hidden markov model (hmm) profiles of the genes of interest.</p>
 <div id="find-the-genes" class="section level3">
 <h3>1. Find the genes</h3>
 <p>In a first step you have to identify and find the genes of interest on NCBI. It is crucial that you choose the right gene. You do the following:</p>
@@ -385,7 +385,6 @@ hmmbuild ${Overall_output_directory}/capV.hmm /data/projects/p539_crisprscope/de
 ####--------------------------------------
 ##hmmsearch
 ####--------------------------------------
-hmmbuild -h
 hmmsearch  -o /data/projects/p539_crisprscope/defense_mechanisms/detection/CBASS/${speciesss}_${genomessss_name}_LmuB.detected   /data/projects/p539_crisprscope/defense_mechanisms/MSA_OMA/LmuB.hmm /data/projects/p539_crisprscope/02_PROKKA/${speciesss}/${genomessss_name}/*.faa
 </code></pre>
 </div>
