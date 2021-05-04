@@ -189,7 +189,11 @@ Here is an example how you can grep multiple gene names in a loop.
 ####--------------------------------------
 username=vsomervi
 
+<<<<<<< HEAD
 genes=$(echo "type I restriction") # gene name
+=======
+genesss=$(echo "type I restriction") # gene name
+>>>>>>> 4ee193ff034d332b6443a7ac77c7a5ab3f1da6ee
 genome=Lapis_ESL0263 # genome name
 
 personal_home_directory=/users/${username}/scratch/${username}
@@ -201,10 +205,18 @@ Overall_output_directory=${personal_home_directory}/SAGE_II
 for genes in $(echo "lacZ lacR lacS lacA")
 do
 echo ${genes}
+<<<<<<< HEAD
 grep "${genes}" -i /users/vsomervi/scratch/common_files/SAGE_II/Genomes/${genome}/*gff #>> ${Overall_output_directory}/01_greps_gff/output_grep.txt
 echo "======================"
 done
 
+=======
+grep "${genes}" -i /users/vsomervi/scratch/common_files/SAGE_II/Genomes/Lapis_ESL0263/*gff
+echo "======================"
+done
+
+
+>>>>>>> 4ee193ff034d332b6443a7ac77c7a5ab3f1da6ee
 ```
 
 or if you have create a list of your genes of interest you can also cat the list:
@@ -319,6 +331,7 @@ hmmbuild ${Overall_output_directory}/capV.hmm /data/projects/p539_crisprscope/de
 
 ### 4. Search HMM
 
+<<<<<<< HEAD
 First, we need to move the directory with the HMMs onto wally. 
 
 ```{bash}
@@ -616,12 +629,25 @@ print(ggheatmap)
 
 
 ```
-### 6. CRISPRcasFinder
+### 6. CRISPRcasTyping
 
 First, we need to get the genomes locally. 
+
 ```{bash}
 mkdir -p /home/vincent/Desktop/Projects/2021_SAGE_II/06_genomes/
 scp  -r vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/common_files/SAGE_II/Genomes/ /home/vincent/Desktop/Projects/2021_SAGE_II/06_genomes/ 
 ```
+
+Then we annotate/extract the CRISPR regions online with [CRISPRcasTyper](cctyper.crispr.dk) explained [here](https://www.liebertpub.com/doi/10.1089/crispr.2020.0059). 
+You can upload the *.fna file within the sample folder and run CRISPRcasTyper with default settings. 
+We can split up the search for the genomes and fill in the [google.sheets]().
+from these annotations we can print the absence presence of CRISPR-cas systems in the genomes. 
+
+##### Analysis
+
+After everyone has filled in the CRISPR sheet we can download the .csv and plot the data. 
+Try this out yourself. 
+
+
 
 
