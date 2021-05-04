@@ -189,7 +189,11 @@ Here is an example how you can grep multiple gene names in a loop.
 ####--------------------------------------
 username=vsomervi
 
+<<<<<<< HEAD
 genes=$(echo "type I restriction") # gene name
+=======
+genesss=$(echo "type I restriction") # gene name
+>>>>>>> 4ee193ff034d332b6443a7ac77c7a5ab3f1da6ee
 genome=Lapis_ESL0263 # genome name
 
 personal_home_directory=/users/${username}/scratch/${username}
@@ -201,10 +205,18 @@ Overall_output_directory=${personal_home_directory}/SAGE_II
 for genes in $(echo "lacZ lacR lacS lacA")
 do
 echo ${genes}
+<<<<<<< HEAD
 grep "${genes}" -i /users/vsomervi/scratch/common_files/SAGE_II/Genomes/${genome}/*gff #>> ${Overall_output_directory}/01_greps_gff/output_grep.txt
 echo "======================"
 done
 
+=======
+grep "${genes}" -i /users/vsomervi/scratch/common_files/SAGE_II/Genomes/Lapis_ESL0263/*gff
+echo "======================"
+done
+
+
+>>>>>>> 4ee193ff034d332b6443a7ac77c7a5ab3f1da6ee
 ```
 
 or if you have create a list of your genes of interest you can also cat the list:
@@ -319,6 +331,7 @@ hmmbuild ${Overall_output_directory}/capV.hmm /data/projects/p539_crisprscope/de
 
 ### 4. Search HMM
 
+<<<<<<< HEAD
 First, we need to move the directory with the HMMs onto wally. 
 
 ```{bash}
@@ -623,5 +636,19 @@ First, we need to get the genomes locally.
 mkdir -p /home/vincent/Desktop/Projects/2021_SAGE_II/06_genomes/
 scp  -r vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/common_files/SAGE_II/Genomes/ /home/vincent/Desktop/Projects/2021_SAGE_II/06_genomes/ 
 ```
+=======
+Here, you have some input for the hmmsearch part. 
+
+```{bash}
+
+####--------------------------------------
+##hmmsearch
+####--------------------------------------
+hmmsearch  -o /data/projects/p539_crisprscope/defense_mechanisms/detection/CBASS/${speciesss}_${genomessss_name}_LmuB.detected   /data/projects/p539_crisprscope/defense_mechanisms/MSA_OMA/LmuB.hmm /data/projects/p539_crisprscope/02_PROKKA/${speciesss}/${genomessss_name}/*.faa
+
+```
+
+
+>>>>>>> 4ee193ff034d332b6443a7ac77c7a5ab3f1da6ee
 
 
