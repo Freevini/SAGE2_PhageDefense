@@ -640,7 +640,7 @@ scp  -r vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/common_files/SAGE_
 
 Then we annotate/extract the CRISPR regions online with [CRISPRcasTyper](cctyper.crispr.dk) explained [here](https://www.liebertpub.com/doi/10.1089/crispr.2020.0059). 
 You can upload the *.fna file within the sample folder and run CRISPRcasTyper with default settings. 
-We can split up the search for the genomes and fill in the [google.sheets]().
+We can split up the search for the genomes and fill in the [google.sheets](https://docs.google.com/spreadsheets/d/1Gp4cqbiYJ34fB7wbcqJBKsGxwgaMyPRrETnVK9PS_4M/edit#gid=732249118).
 from these annotations we can print the absence presence of CRISPR-cas systems in the genomes. 
 
 ##### Analysis
