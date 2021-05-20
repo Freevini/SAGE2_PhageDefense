@@ -306,7 +306,7 @@ We therefore use a tool called [hmmer](http://hmmer.org/). Remember on wally you
 module load HPC/Software 
 #module load UHTS/Analysis/prokka/1.13
 #module load UHTS/Analysis/barrnap/0.8
-module avail
+#module avail
 module load SequenceAnalysis/HMM-Profile/hmmer/3.1b2
 ```
 
@@ -520,30 +520,204 @@ echo -e "The script ran for "${duration} "seconds"
 ## genome names
 ##------------------------------
 ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/ |grep -v "outgroup" > /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.genomes
-ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/outgroup/| grep -v "tar" > /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.genomes
+ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/outgroup/| grep -v "tar" >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.genomes
 
 ```
+
+
+The same with hmm search
+
+```{bash}
+#!/bin/bash
+
+####--------------------------------------
+##SLURM options
+####--------------------------------------
+#SBATCH --job-name hmm_search_06
+#SBATCH --partition wally
+#SBATCH --nodes 1
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 3
+#SBATCH --mem 8G
+#SBATCH --time 05:10:00
+#SBATCH --output /users/vsomervi/scratch/vsomervi/logs/%x_%j.out
+#SBATCH --error /users/vsomervi/scratch/vsomervi/logs/%x_%j.err
+
+####--------------------------------------
+##preparation
+##set you bash variables in order to quickly call them in the script
+####--------------------------------------
+username=vsomervi
+
+
+hmmsss=DruE
+genomesss=Lapis_ESL0263
+hmmsss=DruA
+genomesss=Lbombicola_ESL0230
+####---------------------
+##modules
+####--------------------------------------
+
+module load HPC/Software 
+module load SequenceAnalysis/HMM-Profile/hmmer/3.1b2
+
+####--------------------------------------
+##start of script
+####--------------------------------------
+
+start=$SECONDS
+echo "Step: Test"
+
+echo "=========================================================="
+date +"START : %a %b %e %Y %H:%M:%S "
+#echo -e "Hello " ${username}
+rm /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans
+rm  /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans_oneline
+for genomesss in $(ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/| grep -v "outgroup")
+do
+
+rm -r /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/
+mkdir -p /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/stdouts
+
+echo "=================================================================="
+echo ${genomesss}
+
+for hmmsss in $(ls /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/  | grep ".txt$" |sed 's/.txt//g')
+do
+
+echo "-----------------------------------------------------------------"
+echo ${hmmsss}
+
+#hmmpress /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs/${hmmsss}.txt
+hmmsearch --cpu 3 -E 0.001 --tblout /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/${hmmsss}.scan.tab -o /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/stdouts/${hmmsss}.scan   /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt /users/vsomervi/scratch/common_files/SAGE_II/Genomes/${genomesss}/*.faa
+
+grep -v "^#" /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/${hmmsss}.scan.tab  |awk -v genomzz="$genomesss" -v hmmzz="$hmmsss" '{OFS="\t"}{print genomzz,hmmzz,$3,$19}' >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans
+q
+#grep -v "^#" /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/${genomesss}/${hmmsss}.scan.tab  |awk '{OFS="\t"}{print $3}'| sed -z 's/\n/,/g;s/,$/\n/' |awk -v genomzz="$genomesss" -v hmmzz="$hmmsss" '{OFS="\t"}{print genomzz,hmmzz,$1}'  >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.scans_oneline
+
+done # hmmsss
+done #genomessss
+###--------------------------
+##outgroup
+#for the outgroups we do it seperately
+##---------------------------
+for genomesss in $(ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/outgroup/| grep -v "tar")
+do
+
+rm -r /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/
+mkdir -p /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/stdouts
+
+echo "=================================================================="
+echo ${genomesss}
+
+for hmmsss in $(ls /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/ | grep ".txt$" |sed 's/.txt//g')
+do
+
+echo "-----------------------------------------------------------------"
+echo ${hmmsss}
+
+
+#hmmpress /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs/${hmmsss}.txt
+hmmsearch --cpu 3 -E 0.001 --tblout /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/${hmmsss}.scan.tab -o /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/stdouts/${hmmsss}.scan   /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt /users/vsomervi/scratch/common_files/SAGE_II/Genomes/outgroup/${genomesss}/*.faa
+
+grep -v "^#" /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/${genomesss}/${hmmsss}.scan.tab  |awk -v genomzz="$genomesss" -v hmmzz="$hmmsss" '{OFS="\t"}{print genomzz,hmmzz,$3,$19}' >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans
+
+
+#grep -v "^#" /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/${genomesss}/${hmmsss}.scan.tab  |awk '{OFS="\t"}{print $3}'| sed -z 's/\n/,/g;s/,$/\n/' |awk -v genomzz="$genomesss" -v hmmzz="$hmmsss" '{OFS="\t"}{print genomzz,hmmzz,$1}'  >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.scans_oneline
+
+done # hmmsss
+done #genomessss
+
+duration=$(( SECONDS - start ))
+echo -e "The script ran for "${duration} "seconds"
+
+##------------------------------
+## genome names
+##------------------------------
+ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/ |grep -v "outgroup" > /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.genomes
+ls /users/vsomervi/scratch/common_files/SAGE_II/Genomes/outgroup/| grep -v "tar" >> /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.genomes
+
+```
+
 
 Now have a look at the outputs
 
 ```{bash}
 ## complete output
-less /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.scans
+less /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans
 #for which genomes did we find how many ortholgos
-cut -f 1 /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.scans |sort| uniq -c 
+cut -f 1 /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans |sort| uniq -c 
 #how many orthogs were identified
-cut -f 2 /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.scans |sort| uniq -c 
+cut -f 2 /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.scans |sort| uniq -c 
 
 # look at genome names
-less /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.genomes
+less /users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.genomes
 ```
 
 Now transfer the output files locally for Data analysis. 
 
 ```{bash}
-mkdir -p /home/vincent/Desktop/Projects/2021_SAGE_II/05_Identification/ 
-scp  vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification/all.* /home/vincent/Desktop/Projects/2021_SAGE_II/05_Identification/ 
+mkdir -p /home/vincent/Desktop/Projects/2021_SAGE_II/05_Identification_search/ 
+scp  vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/vsomervi/SAGE_II/05_Identification_search/all.* /home/vincent/Desktop/Projects/2021_SAGE_II/05_Identification_search/ 
+
+
+scp -r vsomervi@wally-front1.unil.ch:/users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/ /home/vincent/Desktop/Projects/2021_SAGE_II/
+
+
 ```
+
+Here, I merge all Hmms into a new folder to bring them locally,
+
+```{bash}
+rm -r  /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/
+mkdir -p /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/
+for hmmsss in $(ls /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs/ | grep ".txt$" |sed 's/.txt//g')
+do
+cp /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs/${hmmsss}.txt /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt
+
+done
+##----------------------------------
+## gather alessandros (R-M)
+#no genes for type 2 and type 3
+#did not work...I used e.rochas HMMs
+##----------------------------------
+
+#for hmmsss in $(ls /users/vsomervi/scratch/abrandul/SAGE_II/HMM/ | grep ".txt$" |sed 's/.txt//g' |cut -d '-' -f 1)
+#do
+
+#cp /users/vsomervi/scratch/abrandul/SAGE_II/HMM//${hmmsss}-*.txt /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt
+
+#done
+
+##----------------------------------
+## gather Lucas (Retrons)
+##----------------------------------
+
+
+for hmmsss in $(ls /users/vsomervi/scratch/lculebra/SAGE_II/HMM/ | grep ".txt$" |sed 's/.txt//g' |awk -F "_HMM" '{print $1}'|sed 's/_COG3344//g')
+do
+
+cp /users/vsomervi/scratch/lculebra/SAGE_II/HMM//${hmmsss}_*.txt /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt
+
+done
+
+
+##----------------------------------
+## gather fabrice (Zorya)
+##----------------------------------
+
+
+for hmmsss in $(ls /users/vsomervi/scratch/fbattist/sage2/hmm/ | grep ".txt$" |sed 's/.txt//g' |cut -d '_' -f 1)
+do
+
+cp /users/vsomervi/scratch/fbattist/sage2/hmm//${hmmsss}_*.txt /users/vsomervi/scratch/vsomervi/SAGE_II/04_HMMs_final/${hmmsss}.txt
+
+done
+
+```
+
+
+
 
 ### 5. Analyse and Plot data
 
@@ -552,8 +726,11 @@ Here, we take the output and plot it.
 ```{r eval=TRUE}
 library(readr)
 library(tidyverse)
-all_scans <- read_delim("~/Desktop/Projects/2021_SAGE_II/05_Identification/all.scans", "\t", escape_double = FALSE, col_names = c("genome","geneOfInterest","gene"))
-all_genomes <- read_delim("~/Desktop/Projects/2021_SAGE_II/05_Identification/all.genomes", "\t", escape_double = FALSE, col_names = c("genome"))
+all_scans <- read_delim("~/Desktop/Projects/2021_SAGE_II/05_Identification_search/all.scans", "\t", escape_double = FALSE, col_names = c("genome","geneOfInterest","gene")) %>% filter(!geneOfInterest %in% c("GalA","GalB"))
+all_scans$geneOfInterest <- plyr::revalue(all_scans$geneOfInterest,c("JatA"="JetA"))
+
+table(all_scans$geneOfInterest)
+all_genomes <- read_delim("~/Desktop/Projects/2021_SAGE_II/05_Identification_search/all.genomes", "\t", escape_double = FALSE, col_names = c("genome"))
 
 #check if all genomes are present
 
@@ -570,7 +747,7 @@ Next we want to know which genes are necessary for which defense mechanisms and/
 To do this we need to Download the .csv from the [google.sheets with all our entries](https://docs.google.com/spreadsheets/d/1Gp4cqbiYJ34fB7wbcqJBKsGxwgaMyPRrETnVK9PS_4M/edit#gid=0)
 
 ```{r eval=TRUE}
-phagedefenseGenes <- read_csv("~/Desktop/Projects/2021_SAGE_II/05_Identification/group9_phagedefense.csv", skip = 1) %>% select( mechanism,subtype,gene)
+phagedefenseGenes <- read_csv("~/Desktop/Projects/2021_SAGE_II/cleaned_group9_phagedefense_cleaned.csv", skip = 1) %>% select( mechanism,subtype,gene)
 
 ##paste_subtpye and mechanism column 
 
@@ -589,6 +766,9 @@ Now we want to merge the information from the genomes with the information from 
 ```{r eval=TRUE}
 see_gene_count <- merge(all_scans_count,phagedefenseGenes_cleaned,by.x="geneOfInterest",by.y="gene",all.x=TRUE) 
 
+tmp <- see_gene_count %>% filter(is.na(mechanism_final))
+# table(tmp$geneOfInterest)
+
 pathway_identification <- see_gene_count %>% group_by(genome,mechanism_final,mechanism_gene_count) %>%  summarise(number_genes_identified=n())
 
 pathway_identification$percentPathway <- 100*(pathway_identification$number_genes_identified/pathway_identification$mechanism_gene_count)
@@ -606,9 +786,7 @@ unique(phagedefenseGenes_02$mechanism_final)
 #order the pathways according to these
 pathway_identification$mechanism_final  = factor(pathway_identification$mechanism_final , levels=unique(phagedefenseGenes_02$mechanism_final))
 
-
 ##-------------------------------
-
 
 ggheatmap <- ggplot(pathway_identification, aes(y=genome, x=mechanism_final, fill = percentPathway))+
  geom_tile(color = "white",size=1.1)+
@@ -629,6 +807,8 @@ print(ggheatmap)
 
 
 ```
+
+
 ### 6. CRISPRcasTyping
 
 First, we need to get the genomes locally. 
@@ -648,6 +828,48 @@ from these annotations we can print the absence presence of CRISPR-cas systems i
 After everyone has filled in the CRISPR sheet we can download the .csv and plot the data. 
 Try this out yourself. 
 
+Some hints:
+
+1. Download the google.sheet as csv. 
+2. import it into r
+3. analyse the Prediction column
+
+```{r}
+
+library(tidyverse)
+group9_phagedefense_CRISPR_scan <- read_csv("~/Desktop/Projects/2021_SAGE_II/CRISPR_annotation/group9_phagedefense_CRISPR_scan.csv",skip = 1)
+
+
+defense_long <- group9_phagedefense_CRISPR_scan %>% select(genome,Prediction)
+
+group9_phagedefense_CRISPR_scan %>% filter(!is.na(Prediction))%>% group_by(genome,Prediction) %>% summarise(counts=n()) %>% select(-count) %>% spread(.,)
+  
+  
+  
+snps_freebayes_long <- gather(snps_freebayes, sample, Snps, colnames(snps_freebayes)[6]:colnames(snps_freebayes)[ncol(snps_freebayes)], factor_key=TRUE,na.rm = TRUE) 
+sample_relative_safe_final_tsne <- spread(sample_relative_safe_final_prep, sample, allel_frequency)
+
+
+ggheatmap <- ggplot(defense_long, aes(y=genome, x=Prediction, fill = percentPathway))+
+ geom_tile(color = "white",size=1.1)+
+ scale_fill_gradient2(low = "white", high = "red", mid = "white",
+   midpoint = 0, limit = c(-100,100), space = "Lab",
+   name="max growth") +
+  theme_minimal()+ # minimal theme
+  scale_x_discrete(position = "top") +
+  # labs(x=expression(italic("S. thermophilus")),y=expression(italic("L. delbrueckii")))+
+ theme(axis.text.y = element_text(size=7),
+      axis.text.x = element_text(angle = 45,vjust=1,
+    size = 12, hjust = 0),axis.title=element_blank(), 
+    legend.title = element_blank())
+ # coord_fixed()
+# Print the heatmap
+print(ggheatmap)
+  
+
+
+
+```
 
 
 
